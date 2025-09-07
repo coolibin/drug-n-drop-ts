@@ -10,12 +10,16 @@ cd "$PROJECT_ROOT"
 command -v node >/dev/null 2>&1 || { echo "Error: Node.js is required."; exit 1; }
 command -v npm >/dev/null 2>&1 || { echo "Error: npm is required."; exit 1; }
 
-# Ensure dependencies are installed (and lite-server is available)
-if [ ! -d "node_modules" ] || ! npx --no-install lite-server --version >/dev/null 2>&1; then
+# Ensure lite-server is installed locally (avoid npx auto-install delays)
+if [ ! -x "node_modules/.bin/lite-server" ]; then
   echo "Installing dependencies..."
-  npm install
+  if [ -f "package-lock.json" ] && [ ! -d "node_modules" ]; then
+    npm ci
+  else
+    npm install
+  fi
 fi
 
 echo "Starting lite-server..."
-# Use the locally installed lite-server and pass through any args
-npx lite-server "$@"
+# Use the locally installed lite-server without allowing npx to auto-install
+exec npx --no-install lite-server "$@"
