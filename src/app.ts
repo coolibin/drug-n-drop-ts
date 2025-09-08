@@ -15,15 +15,23 @@ class Project {
     }
 }
 
-type Listener = (items: Project[]) => void
+type Listener<T> = (items: T[]) => void
+
+abstract class State<T> {
+    protected listeners: Listener<T>[] = []
+
+    addListener(listenerFn: Listener<T>) {
+        this.listeners.push(listenerFn)
+    }
+}
 
 // Project State
-class ProjectState {
-    private listeners: Listener[] = []
+class ProjectState extends State<Project> {
     private projects: Project[] = []
     private static instance: ProjectState
 
     private constructor() {
+        super()
     }
 
     static getInstance() {
@@ -32,10 +40,6 @@ class ProjectState {
         }
         this.instance = new ProjectState()
         return this.instance
-    }
-
-    addListener(listenerFn: Listener) {
-        this.listeners.push(listenerFn)
     }
 
     addProject(title: string, description: string, numOfPeople: number) {
@@ -156,7 +160,7 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 }
 
 // ProjectList class
-class ProjectList extends Component<HTMLDivElement, HTMLElement>{
+class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     assignedProjects: Project[]
 
     constructor(private type: 'active' | 'finished') {
@@ -199,7 +203,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement>{
 }
 
 // Project Input class
-class ProjectInput extends Component<HTMLDivElement, HTMLFormElement>{
+class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
 
     titleInputElement: HTMLInputElement
     descriptionInputElement: HTMLInputElement
@@ -219,7 +223,8 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement>{
         this.element.addEventListener('submit', this.submitHandler) // or use @autobind instead
     }
 
-    renderContent() {}
+    renderContent() {
+    }
 
     private gatherUserInput(): [string, string, number] | void {
         const enteredTitle = this.titleInputElement.value
