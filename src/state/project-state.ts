@@ -55,4 +55,8 @@ export class ProjectState
     }
 }
 
+/**
+ * Even though it is imported in several places,
+ * the state is only instantiated once.
+ */
 export const projectState = ProjectState.getInstance()
